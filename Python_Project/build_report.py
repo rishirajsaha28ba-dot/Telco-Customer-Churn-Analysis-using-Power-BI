@@ -37,8 +37,8 @@ MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
 # ---------------------------------------------------------------- edit me --
 STUDENT_DETAILS = [
-    ("Student 1", "Rishiraj Saha", "PRN: ____________"),
-    ("Student 2", "____________", "PRN: ____________"),
+    ("Student 1", "Rishiraj Saha", "PRN: 26020845025"),
+    ("Student 2", "Ritika Mondol", "PRN: 26020845026"),
 ]
 FACULTY = "Prof. ____________"
 SUBJECT = "Programming for Data Science"

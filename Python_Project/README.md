@@ -27,11 +27,11 @@ Before submitting, fill in the names, PRNs and faculty name in the `TITLE_PAGE` 
 ## Report structure
 - Title page: names, PRNs, faculty, dataset title, subject
 - Chapter 1: Introduction and data description
-- Chapter 2: Pandas (loading and cleaning, group comparisons, feature engineering), NumPy (distribution and outliers, correlation, least-squares regression), Matplotlib (histograms, scatter plots, grouped bar chart and heatmap)
-- Chapter 3: Conclusion: key findings, the story in the data, recommendations and limitations
+- Chapter 2: Pandas (loading and cleaning, groupby, new columns with pd.cut), NumPy (basic statistics and outliers, correlation, a simple prediction model), Matplotlib (histogram, scatter plot, bar chart)
+- Chapter 3: Conclusion: what we found, the story, suggestions and limitations
 
 ## Key findings
-- Smokers are charged about **3.8×** more ($32,050 vs $8,441 on average), and 97.8% of high-cost outliers are smokers.
+- Smokers are charged almost **4×** more ($32,050 vs $8,441 on average).
 - Smoking has the strongest correlation with charges (r = 0.79), followed by age (0.30) and BMI (0.20).
 - Obesity nearly **doubles** a smoker's charges but barely changes a non-smoker's.
-- A linear model using age, BMI, children and smoker explains **75%** of the variation in charges.
+- A simple model using age, BMI and smoking explains about **75%** of the variation in charges.

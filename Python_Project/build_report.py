@@ -21,7 +21,7 @@ from reportlab.platypus import (Image as RLImage, KeepTogether, PageBreak,
 import insurance_analysis as ia
 
 TITLE_PAGE = {
-    "students": [("Manchala Niketh", "26020845015"), ("Student 2 Name", "__________")],
+    "students": [("Manchala Niketh", "26020845015"), ("Kumar Priyanshu", "26020845013")],
     "faculty": "Faculty Name",
     "subject": "Programming for Data Science",
     "title": "Medical Insurance Cost Analysis",

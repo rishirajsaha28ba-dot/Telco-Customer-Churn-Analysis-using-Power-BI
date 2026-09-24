@@ -1,0 +1,62 @@
+[
+ {
+  "id": "SETUP",
+  "title": "Importing libraries and loading the data",
+  "code": "images/SETUP_code.png",
+  "output": "images/SETUP_output.png"
+ },
+ {
+  "id": "PD1",
+  "title": "Pandas 1 - Cleaning the data and basic statistics",
+  "code": "images/PD1_code.png",
+  "output": "images/PD1_output.png"
+ },
+ {
+  "id": "PD2",
+  "title": "Pandas 2 - Churn rate by contract, internet service and payment method",
+  "code": "images/PD2_code.png",
+  "output": "images/PD2_output.png"
+ },
+ {
+  "id": "PD3",
+  "title": "Pandas 3 - Tenure groups, pivot table and churn reasons",
+  "code": "images/PD3_code.png",
+  "output": "images/PD3_output.png"
+ },
+ {
+  "id": "NP1",
+  "title": "NumPy 1 - Comparing monthly charges of churned and retained customers",
+  "code": "images/NP1_code.png",
+  "output": "images/NP1_output.png"
+ },
+ {
+  "id": "NP2",
+  "title": "NumPy 2 - Correlation between numeric columns",
+  "code": "images/NP2_code.png",
+  "output": "images/NP2_output.png"
+ },
+ {
+  "id": "NP3",
+  "title": "NumPy 3 - Risk groups and revenue lost",
+  "code": "images/NP3_code.png",
+  "output": "images/NP3_output.png"
+ },
+ {
+  "id": "MPL1",
+  "title": "Matplotlib 1 - Overall churn and churn by contract",
+  "code": "images/MPL1_code.png",
+  "chart": "images/MPL1_chart.png"
+ },
+ {
+  "id": "MPL2",
+  "title": "Matplotlib 2 - Monthly charges and tenure of churned vs retained customers",
+  "code": "images/MPL2_code.png",
+  "chart": "images/MPL2_chart.png"
+ },
+ {
+  "id": "MPL3",
+  "title": "Matplotlib 3 - Churn over tenure and top churn reasons",
+  "code": "images/MPL3_code.png",
+  "chart": "images/MPL3_chart.png"
+ }
+]

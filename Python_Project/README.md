@@ -1,38 +1,27 @@
-# Telco Customer Churn: Data Analysis using Python
+# Telco Customer Churn Analysis (Python)
 
-Project for **Programming for Data Science**. It analyses the IBM Telco Customer Churn dataset
-(`../DataSet/Telco_customer_churn.xlsx`, 7,043 rows x 33 columns, with categorical and numerical variables)
-using Pandas, NumPy and Matplotlib.
+Project for **Programming for Data Science**, by Rishiraj Saha (PRN 26020845025) and Ritika Mondol (PRN 26020845026).
 
-## Deliverable
+Analysis of the IBM Telco Customer Churn dataset (`../DataSet/Telco_customer_churn.xlsx`, 7,043 rows) using
+only **pandas, NumPy and Matplotlib**.
 
-**[`outputs/Telco_Churn_Python_Report.pdf`](outputs/Telco_Churn_Python_Report.pdf)**. It contains:
+## Report
 
-| Section | Content |
-|---|---|
-| Title page | Names, PRNs, faculty, data heading, subject |
-| Chapter 1 | Introduction, objectives, data source, data dictionary |
-| Chapter 2.1 | Pandas: cleaning and describe; groupby churn summaries; `pd.cut` + pivot table + churn reasons |
-| Chapter 2.2 | NumPy: descriptive statistics + Welch t-test; correlation matrix; `np.where` risk segmentation and revenue at risk |
-| Chapter 2.3 | Matplotlib: donut + bar by contract; histogram + box plot; tenure trend line + churn-reason bars |
-| Chapter 3 | Conclusion, key findings, recommendations, limitations |
+- `Telco_Churn_Report.docx`: editable Word report
+- `Telco_Churn_Report.pdf`: the same report as a PDF
 
-Every application appears as a **code image, then its output, then an inference**.
+Contents: title page; Chapter 1 (introduction and data description); Chapter 2 (3 pandas, 3 NumPy and
+3 Matplotlib applications, each with code, output and inference); Chapter 3 (conclusion).
 
 ## Files
 
-- `telco_churn_analysis.py`: all analysis code, split into cells (`# %% [ID] Title`)
-- `build_report.py`: runs each cell, renders code and output images, and builds the PDF
-- `outputs/figures/`: Matplotlib charts
-- `outputs/code_images/`: code and output images used in the report
+- `telco_churn_analysis.py`: all the analysis code
+- `make_images.py`: runs the code and saves the code, output and chart images to `images/`
+- `make_report.js`: builds the Word report from those images (uses the `docx` npm package)
 
-## Reproduce
+## Run the analysis
 
 ```bash
-pip install -r requirements.txt
-python telco_churn_analysis.py   # run the analysis only
-python build_report.py           # regenerate the PDF report
+pip install pandas numpy matplotlib openpyxl
+python telco_churn_analysis.py
 ```
-
-Before submitting, fill in the student names, PRNs and faculty name in `STUDENT_DETAILS` / `FACULTY` at the top of
-`build_report.py`, then rebuild.

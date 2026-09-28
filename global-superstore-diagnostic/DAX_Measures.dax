@@ -1,0 +1,120 @@
+// =====================================================================
+// Global Superstore — Profitability Diagnostic : DAX for Power BI
+// Table: Orders  (load sheet "Cleaned Data" from Global_Superstore_Final_Answer_Sheet.xlsx)
+// Expected values (full data, no filters) are in the comment after each measure.
+// =====================================================================
+
+// ---------- 1. CALCULATED COLUMNS (skip any that already exist in Cleaned Data) ----------
+Ship Days          = DATEDIFF ( Orders[Order Date], Orders[Ship Date], DAY )
+Order Year         = YEAR ( Orders[Order Date] )
+Unit Selling Price = DIVIDE ( Orders[Sales], Orders[Quantity] )
+Line Margin %      = DIVIDE ( Orders[Profit], Orders[Sales] )
+Loss-Making Flag   = IF ( Orders[Profit] < 0, 1, 0 )
+Discount Band =
+    SWITCH ( TRUE (),
+        Orders[Discount] = 0,   "No Discount",
+        Orders[Discount] < 0.2, "Low",
+        Orders[Discount] < 0.4, "Medium",
+        Orders[Discount] < 0.6, "High",
+        "Very High" )
+Discount Band Label =          // axis labels used on the dashboard
+    SWITCH ( Orders[Discount Band],
+        "No Discount", "0%", "Low", "0–20%", "Medium", "20–40%", "High", "40–60%", "60%+" )
+Discount Band Sort =           // Column tools > Sort by column for both band columns
+    SWITCH ( Orders[Discount Band],
+        "No Discount", 1, "Low", 2, "Medium", 3, "High", 4, 5 )
+Market Region =                // "APAC · Southeast Asia"; Canada/EMEA/Africa show once
+    IF ( Orders[Market] = Orders[Region], Orders[Market], Orders[Market] & " · " & Orders[Region] )
+
+// ---------- 2. CORE KPIs (KPI tiles) ----------
+Total Sales         = SUM ( Orders[Sales] )                                   // 12,642,502
+Total Profit        = SUM ( Orders[Profit] )                                  // 1,467,457
+Total Shipping Cost = SUM ( Orders[Shipping Cost] )                           // 1,352,741
+Profit Margin %     = DIVIDE ( [Total Profit], [Total Sales] )                // 11.6%
+Number of Orders    = DISTINCTCOUNT ( Orders[Order ID] )                      // 25,035
+Number of Customers = DISTINCTCOUNT ( Orders[Customer ID] )                   // 1,590
+Number of Countries = DISTINCTCOUNT ( Orders[Country] )                       // 147
+Order Lines         = COUNTROWS ( Orders )                                    // 51,290
+Average Order Value = DIVIDE ( [Total Sales], [Number of Orders] )            // 505
+Loss-Making Lines   = CALCULATE ( COUNTROWS ( Orders ), Orders[Profit] < 0 )  // 12,544
+% Loss-Making Lines = DIVIDE ( [Loss-Making Lines], [Order Lines] )           // 24.5%
+Shipping Cost % of Sales = DIVIDE ( [Total Shipping Cost], [Total Sales] )    // 10.7%
+Avg Discount        = AVERAGE ( Orders[Discount] )                            // 14.3%
+Avg Ship Days       = AVERAGE ( Orders[Ship Days] )
+Profit per Customer = DIVIDE ( [Total Profit], [Number of Customers] )        // Home Office 936
+
+// ---------- 3. GROWTH (chart "Sales grew 90%, margin did not") ----------
+First Year = CALCULATE ( MIN ( Orders[Order Year] ), ALLSELECTED ( Orders[Order Year] ) )  // 2011
+Last Year  = CALCULATE ( MAX ( Orders[Order Year] ), ALLSELECTED ( Orders[Order Year] ) )  // 2014
+Sales First Year  = VAR y = [First Year] RETURN CALCULATE ( [Total Sales], Orders[Order Year] = y )      // 2,259,451
+Sales Last Year   = VAR y = [Last Year]  RETURN CALCULATE ( [Total Sales], Orders[Order Year] = y )      // 4,299,866
+Margin First Year = VAR y = [First Year] RETURN CALCULATE ( [Profit Margin %], Orders[Order Year] = y )  // 11.0%
+Margin Last Year  = VAR y = [Last Year]  RETURN CALCULATE ( [Profit Margin %], Orders[Order Year] = y )  // 11.7%
+Sales Growth %    = DIVIDE ( [Sales Last Year] - [Sales First Year], [Sales First Year] )                // 90.3%
+Margin Change (pts) = [Margin Last Year] - [Margin First Year]                                           // +0.7 pts
+
+// ---------- 4. DISCOUNT LEAK (chart "Deep discounts destroy profit" + KPI "Lost at >20% discount") ----------
+Sales >20% Discount   = CALCULATE ( [Total Sales],  Orders[Discount] > 0.2 )                 // 1,928,623
+Profit >20% Discount  = CALCULATE ( [Total Profit], Orders[Discount] > 0.2 )                 // -813,955
+Lines >20% Discount   = CALCULATE ( [Order Lines],  Orders[Discount] > 0.2 )                 // 11,326
+Revenue Share >20% Discount = DIVIDE ( [Sales >20% Discount], [Total Sales] )                // 15.3%
+Loss Rate >20% Discount     = CALCULATE ( [% Loss-Making Lines], Orders[Discount] > 0.2 )    // 89.9%
+Loss Rate <=20% Discount    = CALCULATE ( [% Loss-Making Lines], Orders[Discount] <= 0.2 )   // 5.9%
+Margin <=20% Discount       = CALCULATE ( [Profit Margin %], Orders[Discount] <= 0.2 )       // 21.3%
+Profit per $1 Sales >20% Discount = DIVIDE ( [Profit >20% Discount], [Sales >20% Discount] ) // -0.42
+Total Line Losses     = CALCULATE ( [Total Profit], Orders[Profit] < 0 )                     // -920,646
+Share of Line Losses from >20% Discount =
+    DIVIDE ( CALCULATE ( [Total Profit], Orders[Profit] < 0, Orders[Discount] > 0.2 ), [Total Line Losses] ) // 92.1%
+
+// ---------- 5. RECOMMENDATION SCENARIOS (20% discount cap) ----------
+// High end: same volume, each >20% line re-priced at 20% off list (list = Sales / (1 - Discount))
+Profit Gain if Discount Capped at 20% =
+    SUMX (
+        FILTER ( Orders, Orders[Discount] > 0.2 ),
+        Orders[Sales] / ( 1 - Orders[Discount] ) * 0.8 - Orders[Sales]
+    )                                                                                        // 1,030,179
+Margin if Capped (Volume Kept) =
+    DIVIDE ( [Total Profit] + [Profit Gain if Discount Capped at 20%],
+             [Total Sales]  + [Profit Gain if Discount Capped at 20%] )                      // 18.3%
+// Low end: all >20% volume walks away (losses simply avoided)
+Profit Gain if >20% Lines Dropped = - [Profit >20% Discount]                                 // 813,955
+Margin if >20% Lines Dropped     = [Margin <=20% Discount]                                   // 21.3%
+// Recommendation 2 — Tables
+Tables Profit            = CALCULATE ( [Total Profit], Orders[Sub-Category] = "Tables" )     // -64,083
+Tables Gain if Capped    = CALCULATE ( [Profit Gain if Discount Capped at 20%], Orders[Sub-Category] = "Tables" ) // 158,236
+Tables Profit if Capped  = [Tables Profit] + [Tables Gain if Capped]                          // ~94,000
+
+// ---------- 6. COUNTRY / REGION RISK (charts "29 countries lose money", "Weakest regions") ----------
+Loss-Making Countries =
+    COUNTROWS ( FILTER ( VALUES ( Orders[Country] ), [Total Profit] < 0 ) )                  // 29
+Profit of Loss-Making Countries =
+    SUMX ( FILTER ( VALUES ( Orders[Country] ), [Total Profit] < 0 ), [Total Profit] )       // -447,900
+Country Loss Rank =              // visual-level filter: Country Loss Rank <= 8
+    RANKX ( ALLSELECTED ( Orders[Country] ), [Total Profit], , ASC, DENSE )
+Top 8 Loss Countries Profit =
+    SUMX ( TOPN ( 8, VALUES ( Orders[Country] ), [Total Profit], ASC ), [Total Profit] )     // -326,134
+Average Margin (All Regions) =   // dashed "avg 11.6%" reference line
+    CALCULATE ( [Profit Margin %], ALLSELECTED ( Orders[Market], Orders[Region], Orders[Market Region] ) )
+
+// ---------- 7. CONDITIONAL-FORMAT COLOURS (Format > Bars > fx > Field value) ----------
+Color Profit =                   // discount, sub-category and country bars
+    IF ( [Total Profit] < 0, "#E34948", "#2A78D6" )
+Color Region Margin =            // red < 75% of avg, grey < avg, blue >= avg
+    VAR m   = [Profit Margin %]
+    VAR avg = [Average Margin (All Regions)]
+    RETURN SWITCH ( TRUE (), m < avg * 0.75, "#E34948", m < avg, "#C3C2B7", "#2A78D6" )
+Color Category Margin =          // "margin 6.9%" label under Furniture
+    IF ( [Profit Margin %] < 0.10, "#E34948", "#0B0B0B" )
+
+// ---------- 8. KPI TILE SUBTITLES / DATA LABELS ----------
+Label Sales Growth   = "+" & FORMAT ( [Sales Growth %], "0%" ) & " " & [First Year] & "→" & [Last Year]
+Label Margin Trend   = "margin flat " & FORMAT ( [Margin First Year], "0.0%" ) & "→" & FORMAT ( [Margin Last Year], "0.0%" )
+Label AOV            = "AOV " & FORMAT ( [Average Order Value], "$#,0" )
+Label Shipping       = "of sales (" & FORMAT ( [Total Shipping Cost] / 1e6, "$0.00" ) & "M)"
+Label Discount Leak  = FORMAT ( [Share of Line Losses from >20% Discount], "0%" ) & " of all line losses"
+Label Profit & Margin =          // "$259K · 17%" bar labels
+    FORMAT ( [Total Profit] / 1000, "$#,0K;−$#,0K" ) & " · " & FORMAT ( [Profit Margin %], "0%" )
+Label Band Profit & Loss Rate =  // "−$368K / 88% loss"
+    FORMAT ( [Total Profit] / 1000, "$#,0K;−$#,0K" ) & UNICHAR ( 10 ) & FORMAT ( [% Loss-Making Lines], "0%" ) & " loss"
+Label Ship Mode =                // "2.2 days · margin 11.4%"
+    FORMAT ( [Avg Ship Days], "0.0" ) & " days · margin " & FORMAT ( [Profit Margin %], "0.0%" )

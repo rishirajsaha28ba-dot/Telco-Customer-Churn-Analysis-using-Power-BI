@@ -7,7 +7,7 @@ Event run sheet for Round 1, transcribed from the planning whiteboard.
 | Item | Details |
 |------|---------|
 | **Participating teams** | 40 |
-| **Competition rooms** | 402, 403 |
+| **Competition rooms** | 402, 403, 404, 405 |
 | **Chit locations** | Seminar Hall 306 (1st slot), Seminar Hall 406 (2nd slot) |
 
 ## Volunteer (APC Member) Allocation
@@ -15,7 +15,7 @@ Event run sheet for Round 1, transcribed from the planning whiteboard.
 | Assignment | Members | Role |
 |------------|---------|------|
 | Dynamic POC | 2 | Floating points of contact across venues |
-| Seminar Hall 306 / 406 | 3 | Manage the chit locations |
+| Seminar Hall 306 / 406 | 2 | Manage the chit locations |
 | Room 403 / 402 | 3 per room | 2 on scoresheet, 1 emcee |
 
 ## Timeline

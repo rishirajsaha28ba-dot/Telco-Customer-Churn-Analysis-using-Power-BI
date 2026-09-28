@@ -1,5 +1,6 @@
 import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+plt.rcParams['pdf.fonttype']=42
 from matplotlib.backends.backend_pdf import PdfPages
 figs=[]
 orig=plt.Figure.savefig

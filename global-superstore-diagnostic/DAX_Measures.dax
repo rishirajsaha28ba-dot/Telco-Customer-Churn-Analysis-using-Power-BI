@@ -29,7 +29,7 @@ Market Region =                // "APAC · Southeast Asia"; Canada/EMEA/Africa s
 // ---------- 2. CORE KPIs (KPI tiles) ----------
 Total Sales         = SUM ( Orders[Sales] )                                   // 12,642,502
 Total Profit        = SUM ( Orders[Profit] )                                  // 1,467,457
-Total Shipping Cost = SUM ( Orders[Shipping Cost] )                           // 1,352,741
+Total Shipping Cost = SUM ( Orders[Shipping Cost] )                           // 1,352,816
 Profit Margin %     = DIVIDE ( [Total Profit], [Total Sales] )                // 11.6%
 Number of Orders    = DISTINCTCOUNT ( Orders[Order ID] )                      // 25,035
 Number of Customers = DISTINCTCOUNT ( Orders[Customer ID] )                   // 1,590

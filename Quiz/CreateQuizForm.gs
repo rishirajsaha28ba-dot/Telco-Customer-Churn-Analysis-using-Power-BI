@@ -6,7 +6,8 @@
  *  - Question images are drawn automatically and saved as JPEGs in the Drive folder "Quiz Question Images".
  *  - If Google's 6-minute limit is near, the script schedules itself to continue a minute later.
  *  - When the form is ready, its edit and student links are emailed to you (and written to the log).
- *  - Running it again never creates a duplicate form; run resetQuiz() first if you want a fresh one.
+ *  - Running it again never creates a duplicate form (unless the questions changed);
+ *    run resetQuiz() first if you want a fresh one anyway.
  */
 const CONFIG = {
   TITLE: 'Excel, Power BI & SQL Quiz',
@@ -62,7 +63,13 @@ const QUESTIONS = [
   {"q": "Which command is used to remove a table entirely, including its structure, from a database?", "options": ["DELETE TABLE", "REMOVE TABLE", "DROP TABLE", "TRUNCATE COLUMN"], "answer": 2},
   {"q": "What does the SQL keyword DISTINCT do?", "options": ["Sorts results alphabetically", "Removes duplicate rows from the result set", "Locks a table for editing", "Creates an index on a column"], "answer": 1},
   {"q": "What is the purpose of the SQL WHERE clause?", "options": ["To sort results", "To filter rows based on a specified condition", "To create a new table", "To group rows together"], "answer": 1},
-  {"q": "Which statement correctly creates a new table named 'Customers' with a single column 'CustomerID' of integer type?", "options": ["NEW TABLE Customers (CustomerID INT)", "CREATE TABLE Customers (CustomerID INT)", "MAKE TABLE Customers (CustomerID INT)", "TABLE CREATE Customers (CustomerID INT)"], "answer": 1}
+  {"q": "Which statement correctly creates a new table named 'Customers' with a single column 'CustomerID' of integer type?", "options": ["NEW TABLE Customers (CustomerID INT)", "CREATE TABLE Customers (CustomerID INT)", "MAKE TABLE Customers (CustomerID INT)", "TABLE CREATE Customers (CustomerID INT)"], "answer": 1},
+  {"q": "In Power BI, which function is most appropriate when you want to calculate total sales only for the current filter context, while modifying one specific filter?", "options": ["SUM()", "CALCULATE()", "FILTER()", "SUMX()"], "answer": 1},
+  {"q": "You have a Sales table and a Product table. The Product table contains Product ID as a unique value, while the Sales table contains multiple records for each Product ID.\n\nWhat relationship should generally be created?", "options": ["One-to-one", "Many-to-many", "One-to-many, with Product on the \"one\" side", "Many-to-one, with Product on the \"many\" side"], "answer": 2},
+  {"q": "You create a measure:\n    Total Sales = SUM(Sales[Amount])\nYou place Year from a Date table on the X-axis of a visual.\n\nWhat happens to the Total Sales measure?", "options": ["It always shows the same total for every year", "It automatically calculates sales separately for each year based on filter context", "It produces an error because SUM() cannot work with dates", "It requires FILTER() to calculate yearly sales"], "answer": 1},
+  {"q": "In an Excel regression output, the R² is 0.80 while the Adjusted R² is 0.74.\n\nWhich statement best explains the difference?", "options": ["The model explains 74% of the variation in the dependent variable.", "Adjusted R² accounts for the number of independent variables in the model and penalizes unnecessary variables.", "Adjusted R² is always higher than R².", "The difference means the regression model is statistically insignificant."], "answer": 1},
+  {"q": "In an Excel regression output, an independent variable has a p-value of 0.03.\n\nAt a 5% significance level, what can you conclude?", "options": ["The variable is statistically significant", "The variable is statistically insignificant", "The R² is 0.03", "There is a 3% chance that the regression model is correct"], "answer": 0},
+  {"q": "In Tableau, you have a sales dataset containing Region, Product, Sales, and Profit. You want to display Sales by Region and allow the user to select a specific Product using a dropdown.\n\nWhich Tableau feature would you primarily use?", "options": ["Calculated Field", "Filter", "Parameter", "Measure Names"], "answer": 1}
 ];
 
 const PROPS = PropertiesService.getScriptProperties();
@@ -73,7 +80,7 @@ function createQuizForm() {
   clearContinuation_();
 
   const existingId = PROPS.getProperty('FORM_ID');
-  if (existingId) {
+  if (existingId && PROPS.getProperty('FORM_QUESTIONS') === questionsSignature_()) {
     const form = FormApp.openById(existingId);
     Logger.log('The quiz form already exists (run resetQuiz() to build a new one).');
     logLinks_(form);
@@ -86,10 +93,15 @@ function createQuizForm() {
     return;
   }
   const form = buildForm_(images);
-  PROPS.setProperty('FORM_ID', form.getId());
+  PROPS.setProperties({ FORM_ID: form.getId(), FORM_QUESTIONS: questionsSignature_() });
   if (CONFIG.CLOSE_AT) scheduleClose_(new Date(CONFIG.CLOSE_AT));
   logLinks_(form);
   emailLinks_(form);
+}
+
+/** Changes whenever the question list changes, so an edited quiz gets a new form. */
+function questionsSignature_() {
+  return Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(QUESTIONS)));
 }
 
 /** Forgets the previously built form (the form itself is kept in Drive) so the next run builds a new one. */

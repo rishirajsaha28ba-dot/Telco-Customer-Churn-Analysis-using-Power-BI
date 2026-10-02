@@ -12,7 +12,8 @@ TEMPLATE = r"""/**
  *  - Question images are drawn automatically and saved as JPEGs in the Drive folder "Quiz Question Images".
  *  - If Google's 6-minute limit is near, the script schedules itself to continue a minute later.
  *  - When the form is ready, its edit and student links are emailed to you (and written to the log).
- *  - Running it again never creates a duplicate form; run resetQuiz() first if you want a fresh one.
+ *  - Running it again never creates a duplicate form (unless the questions changed);
+ *    run resetQuiz() first if you want a fresh one anyway.
  */
 const CONFIG = {
   TITLE: 'Excel, Power BI & SQL Quiz',
@@ -34,7 +35,7 @@ function createQuizForm() {
   clearContinuation_();
 
   const existingId = PROPS.getProperty('FORM_ID');
-  if (existingId) {
+  if (existingId && PROPS.getProperty('FORM_QUESTIONS') === questionsSignature_()) {
     const form = FormApp.openById(existingId);
     Logger.log('The quiz form already exists (run resetQuiz() to build a new one).');
     logLinks_(form);
@@ -47,10 +48,15 @@ function createQuizForm() {
     return;
   }
   const form = buildForm_(images);
-  PROPS.setProperty('FORM_ID', form.getId());
+  PROPS.setProperties({ FORM_ID: form.getId(), FORM_QUESTIONS: questionsSignature_() });
   if (CONFIG.CLOSE_AT) scheduleClose_(new Date(CONFIG.CLOSE_AT));
   logLinks_(form);
   emailLinks_(form);
+}
+
+/** Changes whenever the question list changes, so an edited quiz gets a new form. */
+function questionsSignature_() {
+  return Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(QUESTIONS)));
 }
 
 /** Forgets the previously built form (the form itself is kept in Drive) so the next run builds a new one. */

@@ -2,15 +2,15 @@
 
 | File | What it is |
 |---|---|
-| `images/Q01.jpg` … `images/Q44.jpg` | One JPEG per question with the question text only (no options) |
-| `quiz_images.zip` | All 44 JPEGs in one zip for uploading to Google Drive |
+| `images/Q01.jpg` … `images/Q50.jpg` | One JPEG per question with the question text only (no options) |
+| `quiz_images.zip` | All 50 JPEGs in one zip for uploading to Google Drive |
 | `CreateQuizForm.gs` | Google Apps Script that builds the Google Form |
 | `questions.json` | Source of truth: question text, 4 options, correct answer index |
 | `make_images.py`, `make_form_script.py` | Regenerate the JPEGs / the Apps Script after editing `questions.json` |
 
 ## Build the Google Form (about 3 minutes)
 
-1. (Optional) Upload the 44 JPEGs to your Google Drive. If you skip this, the script draws the question images itself and saves them as JPEGs in a Drive folder named "Quiz Question Images".
+1. (Optional) Upload the 50 JPEGs to your Google Drive. If you skip this, the script draws the question images itself and saves them as JPEGs in a Drive folder named "Quiz Question Images".
 2. Open <https://script.google.com>, choose **New project**, delete the sample code and paste in the contents of `CreateQuizForm.gs`.
 3. Optionally edit `CONFIG` (`TITLE`, `TIME_LIMIT_MINUTES`, or `DRIVE_FOLDER_ID` if other files in your Drive share the names `Q01.jpg` …).
 4. Select `createQuizForm` and click **Run**. Approve the permissions. The edit link and student link appear in **Execution log**.
@@ -33,7 +33,8 @@ Questions are deliberately **not marked required**, so an auto-submit is never b
 **Optional hard deadline:** set `CONFIG.CLOSE_AT` (e.g. `'2026-10-05T11:30:00'`) before running the script. A trigger then stops the form from accepting responses at that time for everyone. Closing the form does **not** save the answers of anyone still filling it in, so set `CLOSE_AT` a few minutes *after* the timer ends and let the timer's auto-submit save partial answers.
 
 ## Answer key
-1-D 2-A 3-B 4-D 5-B 6-D 7-C 8-C 9-B 10-C 11-C 12-A 13-B 14-A 15-B 16-B 17-B 18-B 19-B 20-B 21-A 22-B
-23-B 24-B 25-A 26-C 27-A 28-B 29-C 30-C 31-B 32-C 33-A 34-C 35-B 36-B 37-B 38-C 39-B 40-A 41-C 42-B 43-B 44-B
+1-D 2-A 3-B 4-D 5-B 6-D 7-C 8-C 9-B 10-C 11-C 12-A 13-B 14-A 15-B 16-B 17-B 18-B 19-B 20-B 21-A 22-B 23-B 24-B 25-A 26-C 27-A 28-B 29-C 30-C 31-B 32-C 33-A 34-C 35-B 36-B 37-B 38-C 39-B 40-A 41-C 42-B 43-B 44-B 45-B 46-C 47-B 48-B 49-A 50-B
 
 Q16–Q19 had no highlighted answer in the source PDF. The key above uses the standard correct answers for those questions; check them before you publish.
+
+Q45–Q47 (Power BI) use the answers you supplied. Q48–Q50 (regression, p-value, Tableau) use the standard answers B, A, B.

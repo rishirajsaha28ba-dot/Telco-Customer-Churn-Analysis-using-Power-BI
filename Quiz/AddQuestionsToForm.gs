@@ -1,10 +1,12 @@
 /**
- * Adds questions 45-50 to the existing 44-question quiz form, so one form holds all 50.
- * Run addQuestionsToForm() once. Running it again does nothing if they were already added.
+ * Adds questions 45-50 to the existing 44-question quiz form, so one form holds all 50,
+ * and renames every answer heading to just "Answer".
+ * Run addQuestionsToForm() once. Running it again is safe: nothing is added twice.
  */
 const FORM_ID = '1ruTBdglr1HJZYT-32WB4PiVW9ThmQiMdyVFcNZU9mHU';
 const FIRST_NUMBER = 45;
 const IMAGE_FOLDER_NAME = 'Quiz Question Images';
+const ANSWER_TITLE = 'Answer';
 
 const NEW_QUESTIONS = [
   {"q": "In Power BI, which function is most appropriate when you want to calculate total sales only for the current filter context, while modifying one specific filter?", "options": ["SUM()", "CALCULATE()", "FILTER()", "SUMX()"], "answer": 1},
@@ -18,27 +20,31 @@ const NEW_QUESTIONS = [
 function addQuestionsToForm() {
   const form = FormApp.openById(FORM_ID);
   const titles = form.getItems().map(function (it) { return it.getTitle(); });
-  if (titles.indexOf('Answer for Question ' + FIRST_NUMBER) !== -1) {
-    Logger.log('Questions ' + FIRST_NUMBER + '+ are already in the form. Nothing to do.');
-    return logLinks_(form);
+  if (titles.indexOf('Question ' + FIRST_NUMBER) === -1) {
+    const images = drawImages_();
+    NEW_QUESTIONS.forEach(function (q, k) {
+      form.addImageItem()
+        .setTitle('Question ' + (FIRST_NUMBER + k))
+        .setImage(images[k])
+        .setAlignment(FormApp.Alignment.CENTER)
+        .setWidth(740);
+
+      const item = form.addMultipleChoiceItem();    // single-select (radio buttons)
+      item.setTitle(ANSWER_TITLE)
+        .setChoices(q.options.map(function (opt, j) { return item.createChoice(opt, j === q.answer); }))
+        .setPoints(1)
+        .setRequired(false);                        // never block a timed auto-submit
+    });
+    Logger.log('Added questions ' + FIRST_NUMBER + '-' + (FIRST_NUMBER + NEW_QUESTIONS.length - 1) + '.');
+  } else {
+    Logger.log('Questions ' + FIRST_NUMBER + '+ are already in the form.');
   }
 
-  const images = drawImages_();
-  NEW_QUESTIONS.forEach(function (q, k) {
-    const n = FIRST_NUMBER + k;
-    form.addImageItem()
-      .setTitle('Question ' + n)
-      .setImage(images[k])
-      .setAlignment(FormApp.Alignment.CENTER)
-      .setWidth(740);
-
-    const item = form.addMultipleChoiceItem();      // single-select (radio buttons)
-    item.setTitle('Answer for Question ' + n)
-      .setChoices(q.options.map(function (opt, j) { return item.createChoice(opt, j === q.answer); }))
-      .setPoints(1)
-      .setRequired(false);                          // never block a timed auto-submit
+  let renamed = 0;
+  form.getItems(FormApp.ItemType.MULTIPLE_CHOICE).forEach(function (it) {
+    if (it.getTitle() !== ANSWER_TITLE) { it.setTitle(ANSWER_TITLE); renamed++; }
   });
-  Logger.log('Added questions ' + FIRST_NUMBER + '-' + (FIRST_NUMBER + NEW_QUESTIONS.length - 1) + '.');
+  Logger.log('Renamed ' + renamed + ' answer headings to "' + ANSWER_TITLE + '".');
   logLinks_(form);
 }
 

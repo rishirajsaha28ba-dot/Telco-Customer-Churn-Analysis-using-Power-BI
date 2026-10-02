@@ -89,7 +89,7 @@ function buildForm_(images) {
       .setWidth(740);
 
     const item = form.addMultipleChoiceItem();      // single-select (radio buttons)
-    item.setTitle('Answer for Question ' + (i + 1))
+    item.setTitle('Answer')
       .setChoices(q.options.map(function (opt, j) { return item.createChoice(opt, j === q.answer); }))
       .setPoints(CONFIG.POINTS_PER_QUESTION)
       .setRequired(false);                          // never block a timed auto-submit

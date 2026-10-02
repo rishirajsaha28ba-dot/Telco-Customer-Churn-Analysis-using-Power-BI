@@ -7,13 +7,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE = r"""/**
  * Builds the Google Form quiz: one question image (JPEG) + one single-select MCQ per question.
  *
- * 1. Upload the images/ folder (Q01.jpg ... Q__COUNT__.jpg) to Google Drive and copy the folder ID
- *    from its URL (drive.google.com/drive/folders/<FOLDER_ID>).
- * 2. Go to https://script.google.com -> New project, paste this file, set CONFIG below.
+ * 1. Upload the images (Q01.jpg ... Q__COUNT__.jpg) anywhere in your Google Drive.
+ * 2. Go to https://script.google.com -> New project, paste this file (CONFIG below is optional).
  * 3. Run createQuizForm() and approve permissions. The edit + live links are printed in the log.
  */
 const CONFIG = {
-  DRIVE_FOLDER_ID: 'PASTE_FOLDER_ID_HERE',
+  DRIVE_FOLDER_ID: '',             // optional: leave empty to find Q01.jpg ... anywhere in your Drive
   TITLE: 'Excel, Power BI & SQL Quiz',
   TIME_LIMIT_MINUTES: 30,          // shown to students; enforced by the Form Timer add-on (see README)
   CLOSE_AT: '',                    // optional hard deadline, e.g. '2026-10-05T11:30:00' (script time zone).
@@ -25,7 +24,7 @@ const CONFIG = {
 const QUESTIONS = __QUESTIONS__;
 
 function createQuizForm() {
-  const folder = DriveApp.getFolderById(CONFIG.DRIVE_FOLDER_ID);
+  const source = CONFIG.DRIVE_FOLDER_ID ? DriveApp.getFolderById(CONFIG.DRIVE_FOLDER_ID) : DriveApp;
   const form = FormApp.create(CONFIG.TITLE);
   form.setDescription(
       'Time limit: ' + CONFIG.TIME_LIMIT_MINUTES + ' minutes. The form will auto-submit when time runs out.\n' +
@@ -42,8 +41,8 @@ function createQuizForm() {
   QUESTIONS.forEach(function (q, i) {
     const n = i + 1;
     const name = 'Q' + (n < 10 ? '0' + n : n) + '.jpg';
-    const files = folder.getFilesByName(name);
-    if (!files.hasNext()) throw new Error('Missing image in Drive folder: ' + name);
+    const files = source.getFilesByName(name);
+    if (!files.hasNext()) throw new Error('Image not found in Drive: ' + name);
 
     form.addImageItem()
       .setTitle('Question ' + n)

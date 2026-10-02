@@ -10,10 +10,9 @@
 
 ## Build the Google Form (about 3 minutes)
 
-1. In Google Drive, make a new folder, unzip `quiz_images.zip`, and upload the 44 JPEGs into it.
-   Copy the folder ID from the URL: `drive.google.com/drive/folders/<FOLDER_ID>`.
+1. Unzip `quiz_images.zip` and upload the 44 JPEGs anywhere in your Google Drive (a folder is optional).
 2. Open <https://script.google.com>, choose **New project**, delete the sample code and paste in the contents of `CreateQuizForm.gs`.
-3. In `CONFIG`, set `DRIVE_FOLDER_ID` (and `TITLE` / `TIME_LIMIT_MINUTES` if you want to change them).
+3. Optionally edit `CONFIG` (`TITLE`, `TIME_LIMIT_MINUTES`, or `DRIVE_FOLDER_ID` if other files in your Drive share the names `Q01.jpg` …).
 4. Select `createQuizForm` and click **Run**. Approve the permissions. The edit link and student link appear in **Execution log**.
 
 The form you get:

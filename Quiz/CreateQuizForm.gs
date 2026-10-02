@@ -10,7 +10,9 @@ const CONFIG = {
   DRIVE_FOLDER_ID: 'PASTE_FOLDER_ID_HERE',
   TITLE: 'Excel, Power BI & SQL Quiz',
   TIME_LIMIT_MINUTES: 30,          // shown to students; enforced by the Form Timer add-on (see README)
-  CLOSE_AT: '',                    // optional hard deadline, e.g. '2026-10-05T11:30:00' (script time zone)
+  CLOSE_AT: '',                    // optional hard deadline, e.g. '2026-10-05T11:30:00' (script time zone).
+                                   // WARNING: closing discards answers of anyone still mid-form; set it a few
+                                   // minutes AFTER the timer's auto-submit so partial answers are saved first.
   POINTS_PER_QUESTION: 1,
 };
 

@@ -29,9 +29,9 @@ Google Forms has **no built-in countdown or auto-submit**, and Apps Script canno
 2. Open the add-on (puzzle icon → Form Timer), set the duration (e.g. 30 min), and switch on **auto-submit**.
 3. Share the timer link the add-on gives you, **not** the normal form link. Each student's countdown starts when they open it, and the form submits itself when time runs out.
 
-Questions are deliberately **not marked required**, so an auto-submit is never blocked by unanswered questions.
+Questions are deliberately **not marked required**, so an auto-submit is never blocked by unanswered questions. When the timer auto-submits, whatever the student has answered so far is recorded, and unanswered questions score 0.
 
-**Optional hard deadline:** set `CONFIG.CLOSE_AT` (e.g. `'2026-10-05T11:30:00'`) before running the script. A trigger then stops the form from accepting responses at that time for everyone.
+**Optional hard deadline:** set `CONFIG.CLOSE_AT` (e.g. `'2026-10-05T11:30:00'`) before running the script. A trigger then stops the form from accepting responses at that time for everyone. Closing the form does **not** save the answers of anyone still filling it in, so set `CLOSE_AT` a few minutes *after* the timer ends and let the timer's auto-submit save partial answers.
 
 ## Answer key
 1-D 2-A 3-B 4-D 5-B 6-D 7-C 8-C 9-B 10-C 11-C 12-A 13-B 14-A 15-B 16-B 17-B 18-B 19-B 20-B 21-A 22-B

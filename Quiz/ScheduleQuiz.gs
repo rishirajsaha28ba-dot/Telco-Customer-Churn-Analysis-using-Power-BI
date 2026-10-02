@@ -4,8 +4,8 @@
  * Run cancelSchedule() to remove the schedule. Run showSchedule() to see what is set.
  */
 const FORM_ID = '1ruTBdglr1HJZYT-32WB4PiVW9ThmQiMdyVFcNZU9mHU';
-const OPEN_AT  = '2026-10-05T10:00:00+05:30';   // when students can start
-const CLOSE_AT = '2026-10-05T10:40:00+05:30';   // when the form stops accepting answers
+const OPEN_AT  = '2026-10-03T19:00:00+05:30';   // when students can start
+const CLOSE_AT = '2026-10-03T19:10:00+05:30';   // when the form stops accepting answers
 
 function scheduleQuiz() {
   const open = new Date(OPEN_AT), close = new Date(CLOSE_AT);

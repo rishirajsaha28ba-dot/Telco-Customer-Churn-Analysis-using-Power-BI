@@ -8,9 +8,9 @@ TEMPLATE = r"""/**
  * Builds the Google Form quiz: one question image (JPEG) + one single-select MCQ per question.
  *
  * Just run createQuizForm() and approve permissions. The edit + student links are printed in the log.
- * If Q01.jpg ... Q__COUNT__.jpg are already in your Drive they are used; otherwise the script draws
- * the question images itself (via a temporary Google Slides deck) and saves them as JPEGs in a
- * Drive folder named "Quiz Question Images".
+ * The script draws the question images itself (via a temporary Google Slides deck) and saves them as
+ * JPEGs in a Drive folder named "Quiz Question Images". If a run stops part-way, just run it again:
+ * images already in that folder are reused.
  */
 const CONFIG = {
   TITLE: 'Excel, Power BI & SQL Quiz',
@@ -66,54 +66,82 @@ function imageName_(n) {
   return 'Q' + (n < 10 ? '0' + n : n) + '.jpg';
 }
 
-/** Returns one JPEG blob per question: existing Drive images if all are present, else freshly drawn ones. */
+/** Returns one JPEG blob per question, reusing images already saved and drawing only the missing ones. */
 function getQuestionImages_() {
-  const source = CONFIG.DRIVE_FOLDER_ID ? DriveApp.getFolderById(CONFIG.DRIVE_FOLDER_ID) : DriveApp;
-  const found = QUESTIONS.map(function (_, i) {
-    const files = source.getFilesByName(imageName_(i + 1));
+  const folder = CONFIG.DRIVE_FOLDER_ID ? DriveApp.getFolderById(CONFIG.DRIVE_FOLDER_ID) : imageFolder_();
+  const blobs = QUESTIONS.map(function (_, i) {
+    const files = folder.getFilesByName(imageName_(i + 1));
     return files.hasNext() ? files.next().getBlob() : null;
   });
-  if (found.every(function (b) { return b; })) return found;
-  if (CONFIG.DRIVE_FOLDER_ID) throw new Error('Some Q__.jpg images are missing from the Drive folder.');
-  return drawQuestionImages_();
+  const missing = [];
+  blobs.forEach(function (b, i) { if (!b) missing.push(i); });
+  if (missing.length && CONFIG.DRIVE_FOLDER_ID) throw new Error('Some Q__.jpg images are missing from the Drive folder.');
+  if (missing.length) {
+    Logger.log('Drawing ' + missing.length + ' question images...');
+    drawQuestionImages_(missing, folder).forEach(function (b, k) { blobs[missing[k]] = b; });
+  }
+  return blobs;
 }
 
-/** Draws each question on a Slides page, exports it as JPEG and saves it to Drive. */
-function drawQuestionImages_() {
-  const deck = SlidesApp.create('Quiz question images (temporary)');
-  const blank = deck.getSlides()[0];
-  QUESTIONS.forEach(function (q, i) {
-    const slide = deck.appendSlide(SlidesApp.PredefinedLayout.BLANK);
-    slide.getBackground().setSolidFill('#FFFFFF');
-    slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, 8, 405).getFill().setSolidFill('#1A7F37');
-
-    const head = slide.insertTextBox('Question ' + (i + 1), 40, 24, 640, 44).getText();
-    head.getTextStyle().setFontFamily('Roboto').setFontSize(26).setBold(true).setForegroundColor('#1A7F37');
-
-    const size = q.q.length <= 120 ? 22 : q.q.length <= 220 ? 19 : 17;
-    const body = slide.insertTextBox(q.q, 40, 80, 640, 300).getText();
-    body.getTextStyle().setFontFamily('Roboto').setFontSize(size).setForegroundColor('#1F2328');
-    body.getParagraphs().forEach(function (p) {
-      const r = p.getRange();
-      if (/^ {4}/.test(r.asString())) r.getTextStyle().setFontFamily('Roboto Mono').setBold(true);
-    });
-  });
-  blank.remove();
-  deck.saveAndClose();
-
+function imageFolder_() {
   const folders = DriveApp.getFoldersByName(CONFIG.IMAGE_FOLDER_NAME);
-  const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(CONFIG.IMAGE_FOLDER_NAME);
-  const token = ScriptApp.getOAuthToken();
-  const blobs = SlidesApp.openById(deck.getId()).getSlides().map(function (slide, i) {
-    const url = 'https://docs.google.com/presentation/d/' + deck.getId() +
-        '/export/png?pageid=' + slide.getObjectId();
-    const png = UrlFetchApp.fetch(url, { headers: { Authorization: 'Bearer ' + token } }).getBlob();
-    const jpg = png.getAs('image/jpeg').setName(imageName_(i + 1));
-    folder.createFile(jpg);
-    return jpg;
-  });
-  DriveApp.getFileById(deck.getId()).setTrashed(true);
-  return blobs;
+  return folders.hasNext() ? folders.next() : DriveApp.createFolder(CONFIG.IMAGE_FOLDER_NAME);
+}
+
+/** Draws the given questions on Slides pages, exports each as JPEG and saves it to the folder. */
+function drawQuestionImages_(indexes, folder) {
+  const DECK_NAME = 'Quiz question images (temporary)';
+  const old = DriveApp.getFilesByName(DECK_NAME);           // leftovers from an earlier failed run
+  while (old.hasNext()) old.next().setTrashed(true);
+
+  const deck = SlidesApp.create(DECK_NAME);
+  try {
+    const blank = deck.getSlides()[0];
+    indexes.forEach(function (i) {
+      const q = QUESTIONS[i];
+      const slide = deck.appendSlide(SlidesApp.PredefinedLayout.BLANK);
+      slide.getBackground().setSolidFill('#FFFFFF');
+      slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, 8, 405).getFill().setSolidFill('#1A7F37');
+
+      const head = slide.insertTextBox('Question ' + (i + 1), 40, 24, 640, 44).getText();
+      head.getTextStyle().setFontFamily('Roboto').setFontSize(26).setBold(true).setForegroundColor('#1A7F37');
+
+      const size = q.q.length <= 120 ? 22 : q.q.length <= 220 ? 19 : 17;
+      const body = slide.insertTextBox(q.q, 40, 80, 640, 300).getText();
+      body.getTextStyle().setFontFamily('Roboto').setFontSize(size).setForegroundColor('#1F2328');
+      body.getParagraphs().forEach(function (p) {
+        const r = p.getRange();
+        if (/^ {4}/.test(r.asString())) r.getTextStyle().setFontFamily('Roboto Mono').setBold(true);
+      });
+    });
+    blank.remove();
+    deck.saveAndClose();
+
+    const token = ScriptApp.getOAuthToken();
+    return SlidesApp.openById(deck.getId()).getSlides().map(function (slide, k) {
+      const url = 'https://docs.google.com/presentation/d/' + deck.getId() +
+          '/export/png?pageid=' + slide.getObjectId();
+      const jpg = fetchWithRetry_(url, token).getAs('image/jpeg').setName(imageName_(indexes[k] + 1));
+      folder.createFile(jpg);                               // saved right away, so a rerun resumes here
+      Utilities.sleep(2000);                                // stay under Google's export rate limit
+      return jpg;
+    });
+  } finally {
+    DriveApp.getFileById(deck.getId()).setTrashed(true);
+  }
+}
+
+/** Fetches a URL, waiting and retrying when Google answers 429 (too many requests) or a 5xx error. */
+function fetchWithRetry_(url, token) {
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const res = UrlFetchApp.fetch(url, { headers: { Authorization: 'Bearer ' + token }, muteHttpExceptions: true });
+    const code = res.getResponseCode();
+    if (code === 200) return res.getBlob();
+    if (code !== 429 && code < 500) throw new Error('Image export failed with HTTP ' + code);
+    Utilities.sleep(5000 * Math.pow(2, attempt));           // 5s, 10s, 20s, 40s, 80s, 160s
+  }
+  throw new Error('Google kept rate-limiting image export. Wait a few minutes and run again; ' +
+      'images already saved are reused.');
 }
 
 /** Stops accepting responses at a fixed time (in addition to the per-student timer). */

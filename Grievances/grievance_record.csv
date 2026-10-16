@@ -1,1 +1,3 @@
-Grievance_ID,Date_Received,Customer_Name,Customer_ID,Contact,Category,Sub_Category,Description,Priority,Status,Assigned_To,Resolution,Date_Resolved
+Grievance_ID,Date_Logged,Student_Name,Roll_No,Category,Description,Supporting_Evidence,Status,Remarks
+G-001,2026-10-16,Parth Singh,26020845018,Missed Quiz,"Could not attend the quiz due to no network while travelling.","Screenshot of official leave request mailed to sir",Open,
+G-002,2026-10-16,Parth Singh,26020845018,Group Project Marks,"Team was awarded 0 in the group project despite submitting it on Drive.","Submission on Drive (claimed)",Open,
